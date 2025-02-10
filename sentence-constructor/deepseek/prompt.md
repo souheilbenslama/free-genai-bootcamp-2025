@@ -22,6 +22,7 @@ Beginner (A1)
   | word | Wort |
 
 - all input words should be in the vocabulary table
+
 ### Grammar Guidance
 
 - Explain relevant sentence structure rules
@@ -42,7 +43,6 @@ Beginner (A1)
 - hints should be short and easy to understand.
 
 - in the following hints , give the student the rule how to conjugate the verb with the pronouns if the student didn't give the right answer.
-
 
 ### Response Format
 
