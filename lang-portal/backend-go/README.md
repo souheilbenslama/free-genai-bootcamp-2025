@@ -31,14 +31,38 @@ backend-go/
 
 1. Clone the repository
 2. Navigate to the project directory
-3. Install dependencies:
+3. Install Mage (if not already installed):
    ```bash
-   go mod tidy
+   go install github.com/magefile/mage@latest
    ```
-4. Run the server:
+4. Install project dependencies:
    ```bash
-   go run cmd/api/main.go
+   mage install
    ```
+5. Initialize the database:
+   ```bash
+   mage db:init
+   ```
+6. Start the development server:
+   ```bash
+   mage dev:run
+   ```
+
+## Available Mage Commands
+
+- `mage install` - Install project dependencies
+- `mage build` - Build the application
+- `mage test` - Run tests
+- `mage clean` - Clean build artifacts
+
+### Database Commands
+- `mage db:init` - Initialize database with schema and seed data
+- `mage db:migrate` - Apply database migrations
+- `mage db:seed` - Load seed data
+- `mage db:clean` - Remove database file
+
+### Development Commands
+- `mage dev:run` - Start development server
 
 The server will start on `http://localhost:8080`
 

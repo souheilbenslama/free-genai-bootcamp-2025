@@ -3,6 +3,7 @@ package sqlite
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	"github.com/souheilbenslama/free-genai-bootcamp-2025/lang-portal/backend-go/internal/models"
 )
@@ -10,6 +11,8 @@ import (
 type WordRepository struct {
 	db *sql.DB
 }
+
+
 
 func NewWordRepository(db *sql.DB) *WordRepository {
 	return &WordRepository{db: db}
@@ -64,13 +67,54 @@ func (r *WordRepository) CreateWord(ctx context.Context, word *models.Word) erro
 }
 
 func (r *WordRepository) UpdateWord(ctx context.Context, word *models.Word) error {
-	_, err := r.db.ExecContext(ctx,
-		"UPDATE words SET german = ?, english = ?, parts = ? WHERE id = ?",
-		word.German, word.English, word.Parts, word.ID)
-	return err
+	query := `
+		UPDATE words
+		SET german = ?, english = ?, parts = ?
+		WHERE id = ?
+		RETURNING id, german, english, parts
+	`
+
+	err := r.db.QueryRowContext(ctx,
+		query,
+		word.German,
+		word.English,
+		word.Parts,
+		word.ID,
+	).Scan(
+		&word.ID,
+		&word.German,
+		&word.English,
+		&word.Parts,
+	)
+
+	if err != nil {
+		return fmt.Errorf("error updating word: %w", err)
+	}
+
+	return nil
 }
 
 func (r *WordRepository) DeleteWord(ctx context.Context, id int) error {
-	_, err := r.db.ExecContext(ctx, "DELETE FROM words WHERE id = ?", id)
-	return err
+	// First delete any associations in words_groups
+	_, err := r.db.ExecContext(ctx, "DELETE FROM words_groups WHERE word_id = ?", id)
+	if err != nil {
+		return fmt.Errorf("error deleting word associations: %w", err)
+	}
+
+	// Then delete the word
+	result, err := r.db.ExecContext(ctx, "DELETE FROM words WHERE id = ?", id)
+	if err != nil {
+		return fmt.Errorf("error deleting word: %w", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("error checking rows affected: %w", err)
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("word with id %d not found", id)
+	}
+
+	return nil
 }

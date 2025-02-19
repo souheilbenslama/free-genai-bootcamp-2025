@@ -1,0 +1,16 @@
+{
+  "groups": [
+    {
+      "name": "Basic Vocabulary",
+      "words": ["Haus", "Katze", "Hund", "Buch", "Auto"]
+    },
+    {
+      "name": "Animals",
+      "words": ["Katze", "Hund"]
+    },
+    {
+      "name": "Objects",
+      "words": ["Haus", "Buch", "Auto"]
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "words": [
+    {
+      "german": "Haus",
+      "english": "house",
+      "parts": {
+        "article": "das",
+        "plural": "Häuser"
+      }
+    },
+    {
+      "german": "Katze",
+      "english": "cat",
+      "parts": {
+        "article": "die",
+        "plural": "Katzen"
+      }
+    },
+    {
+      "german": "Hund",
+      "english": "dog",
+      "parts": {
+        "article": "der",
+        "plural": "Hunde"
+      }
+    },
+    {
+      "german": "Buch",
+      "english": "book",
+      "parts": {
+        "article": "das",
+        "plural": "Bücher"
+      }
+    },
+    {
+      "german": "Auto",
+      "english": "car",
+      "parts": {
+        "article": "das",
+        "plural": "Autos"
+      }
+    }
+  ]
+}
