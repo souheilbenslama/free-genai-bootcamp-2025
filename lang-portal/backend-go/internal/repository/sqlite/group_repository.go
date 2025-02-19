@@ -90,9 +90,25 @@ func (r *GroupRepository) DeleteGroup(ctx context.Context, id int) error {
 }
 
 func (r *GroupRepository) AddWordToGroup(ctx context.Context, groupID, wordID int) error {
+	// Check if the word exists
+	var wordExists bool
+	err := r.db.QueryRowContext(
+		ctx,
+		"SELECT EXISTS(SELECT 1 FROM words WHERE id = ?)",
+		wordID,
+	).Scan(&wordExists)
+
+	if err != nil {
+		return fmt.Errorf("error checking word existence: %w", err)
+	}
+
+	if !wordExists {
+		return sql.ErrNoRows
+	}
+
 	// Check if the association already exists
 	var exists bool
-	err := r.db.QueryRowContext(
+	err = r.db.QueryRowContext(
 		ctx,
 		"SELECT EXISTS(SELECT 1 FROM words_groups WHERE group_id = ? AND word_id = ?)",
 		groupID,
@@ -190,7 +206,7 @@ func (r *GroupRepository) GetAll(page, pageSize int) ([]models.Group, int, error
 
 func (r *GroupRepository) GetByID(id int) (*models.Group, error) {
 	query := `
-		SELECT g.id, g.name, COUNT(wg.word_id) as word_count
+		SELECT g.id, g.name, g.description, COUNT(wg.word_id) as word_count
 		FROM groups g
 		LEFT JOIN words_groups wg ON g.id = wg.group_id
 		WHERE g.id = ?
@@ -198,7 +214,7 @@ func (r *GroupRepository) GetByID(id int) (*models.Group, error) {
 	`
 
 	var group models.Group
-	err := r.db.QueryRow(query, id).Scan(&group.ID, &group.Name, &group.WordCount)
+	err := r.db.QueryRow(query, id).Scan(&group.ID, &group.Name, &group.Description, &group.WordCount)
 	if err == sql.ErrNoRows {
 		return nil, nil
 	}

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"database/sql"
 	"net/http"
 	"strconv"
 
@@ -20,13 +21,19 @@ func (h *GroupHandler) CreateGroup(c *gin.Context) {
 		return
 	}
 
+	// Validate required fields
+	if group.Name == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "name is required"})
+		return
+	}
+
 	err := h.repo.CreateGroup(c.Request.Context(), &group)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusCreated, group)
+	c.JSON(http.StatusOK, group)
 }
 
 func (h *GroupHandler) UpdateGroup(c *gin.Context) {
@@ -86,8 +93,23 @@ func (h *GroupHandler) AddWordToGroup(c *gin.Context) {
 		return
 	}
 
+	// Check if group exists
+	group, err := h.repo.GetByID(groupID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	if group == nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "group not found"})
+		return
+	}
+
 	err = h.repo.AddWordToGroup(c.Request.Context(), groupID, req.WordID)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, gin.H{"error": "word not found"})
+			return
+		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -168,8 +190,9 @@ func (h *GroupHandler) GetGroup(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"id":    group.ID,
-		"name":  group.Name,
-		"words": words,
+		"id":          group.ID,
+		"name":        group.Name,
+		"description": group.Description,
+		"words":       words,
 	})
 }

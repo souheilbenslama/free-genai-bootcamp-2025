@@ -105,10 +105,16 @@ func (h *WordHandler) CreateWord(c *gin.Context) {
 		return
 	}
 
+	// Validate required fields
+	if word.German == "" || word.English == "" || word.Parts == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "german, english, and parts are required"})
+		return
+	}
+
 	if err := h.wordRepo.CreateWord(c.Request.Context(), &word); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusCreated, word)
+	c.JSON(http.StatusOK, word)
 }
