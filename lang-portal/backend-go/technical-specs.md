@@ -5,9 +5,33 @@
 - the backend server must be written in go
 - the database will be sqlite3
 - the api will be built using Gin frameworkwind
+- Mage is the task write for go 
 - the api will always return json
 - there will be no authentication or authorization
 - every thing will for a single user
+
+
+## Directory structure
+
+backend-go/
+├── cmd/
+│   └── api/               # Main API server executable
+├── internal/              # Private application code not importable by other projects
+│   ├── api/
+│   │   ├── handlers/     # HTTP request handlers for each endpoint
+│   │   ├── middleware/   # HTTP middleware (logging, error handling, etc.)
+│   │   └── routes/       # API route definitions and setup
+│   ├── models/
+│   ├── repository/       # Data access layer interfaces and implementations
+│   │   └── sqlite/
+│   └── service/         # Business logic and use case implementations
+├── database/
+│   ├── migrations/      # Database schema changes and versioning
+│   └── seed/           # Initial data for development and testing
+├── config/
+├── pkg/                # Public packages that can be imported by other projects
+│   └── utils/
+└── tests/
 
 ## Database Schema
 
