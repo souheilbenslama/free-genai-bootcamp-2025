@@ -17,17 +17,33 @@ func NewStudyRepository(db *sql.DB) *StudyRepository {
 }
 
 func (r *StudyRepository) CreateStudySession(groupID int) (*models.StudySession, error) {
+	// First check if group exists
+	var exists bool
+	err := r.db.QueryRow("SELECT EXISTS(SELECT 1 FROM groups WHERE id = ?)", groupID).Scan(&exists)
+	if err != nil {
+		return nil, fmt.Errorf("error checking group existence: %w", err)
+	}
+	if !exists {
+		return nil, fmt.Errorf("group with id %d does not exist", groupID)
+	}
+
 	tx, err := r.db.Begin()
 	if err != nil {
 		return nil, fmt.Errorf("error beginning transaction: %w", err)
 	}
-	defer tx.Rollback()
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		}
+	}()
+
+	createdAt := time.Now()
 
 	// Create study session first
 	sessionResult, err := tx.Exec(
 		"INSERT INTO study_sessions (group_id, created_at) VALUES (?, ?)",
 		groupID,
-		time.Now(),
+		createdAt,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("error creating study session: %w", err)
@@ -43,7 +59,7 @@ func (r *StudyRepository) CreateStudySession(groupID int) (*models.StudySession,
 		"INSERT INTO study_activities (study_session_id, group_id, created_at) VALUES (?, ?, ?)",
 		sessionID,
 		groupID,
-		time.Now(),
+		createdAt,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("error creating study activity: %w", err)
@@ -70,7 +86,7 @@ func (r *StudyRepository) CreateStudySession(groupID int) (*models.StudySession,
 
 	return &models.StudySession{
 		ID:              int(sessionID),
-		GroupID:         int(groupID),
+		GroupID:         groupID,
 		StudyActivityID: int(activityID),
 		CreatedAt:       time.Now(),
 	}, nil
@@ -165,21 +181,35 @@ func (r *StudyRepository) GetStudyProgress() (*models.StudyProgress, error) {
 }
 
 func (r *StudyRepository) GetQuickStats() (*models.DashboardStats, error) {
-	// Get success rate
-	var correctCount, totalCount int
+	stats := &models.DashboardStats{}
+
+	// Get total words, groups, and study sessions
 	err := r.db.QueryRow(`
 		SELECT 
-			COALESCE(SUM(CASE WHEN correct THEN 1 ELSE 0 END), 0) as correct_count,
-			COALESCE(COUNT(*), 0) as total_count
-		FROM word_review_items
-	`).Scan(&correctCount, &totalCount)
+			COUNT(*) as total_words,
+			(SELECT COUNT(*) FROM groups) as total_groups,
+			(SELECT COUNT(*) FROM study_sessions) as total_sessions,
+			(SELECT COUNT(DISTINCT group_id) FROM study_sessions) as active_groups,
+			COALESCE(SUM(CASE WHEN correct THEN 1 ELSE 0 END), 0) as correct_answers,
+			COALESCE(SUM(CASE WHEN NOT correct THEN 1 ELSE 0 END), 0) as incorrect_answers
+		FROM words
+		LEFT JOIN word_review_items ON 1=1
+	`).Scan(
+		&stats.TotalWords,
+		&stats.TotalGroups,
+		&stats.TotalStudySessions,
+		&stats.TotalActiveGroups,
+		&stats.CorrectAnswers,
+		&stats.IncorrectAnswers,
+	)
 	if err != nil {
-		return nil, fmt.Errorf("error calculating success rate: %w", err)
+		return nil, fmt.Errorf("error getting quick stats: %w", err)
 	}
 
 	successRate := 0.0
-	if totalCount > 0 {
-		successRate = float64(correctCount) / float64(totalCount)
+	totalAnswers := stats.CorrectAnswers + stats.IncorrectAnswers
+	if totalAnswers > 0 {
+		successRate = float64(stats.CorrectAnswers) / float64(totalAnswers)
 	}
 
 	// Get total study sessions

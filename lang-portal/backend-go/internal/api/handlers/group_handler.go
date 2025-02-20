@@ -33,7 +33,7 @@ func (h *GroupHandler) CreateGroup(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, group)
+	c.JSON(http.StatusCreated, group)
 }
 
 func (h *GroupHandler) UpdateGroup(c *gin.Context) {
@@ -95,7 +95,10 @@ func (h *GroupHandler) AddWordToGroup(c *gin.Context) {
 
 	// Check if group exists
 	group, err := h.repo.GetByID(groupID)
-	if err != nil {
+	if err == sql.ErrNoRows {
+		c.JSON(http.StatusNotFound, gin.H{"error": "group not found"})
+		return
+	} else if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

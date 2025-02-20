@@ -13,52 +13,44 @@ type GroupRepository struct {
 }
 
 func (r *GroupRepository) CreateGroup(ctx context.Context, group *models.Group) error {
-	query := `
-		INSERT INTO groups (name, description)
-		VALUES (?, ?)
-		RETURNING id, name, description
-	`
-
-	err := r.db.QueryRowContext(
+	result, err := r.db.ExecContext(
 		ctx,
-		query,
+		"INSERT INTO groups (name, description) VALUES (?, ?)",
 		group.Name,
 		group.Description,
-	).Scan(
-		&group.ID,
-		&group.Name,
-		&group.Description,
 	)
-
 	if err != nil {
 		return fmt.Errorf("error creating group: %w", err)
 	}
 
+	id, err := result.LastInsertId()
+	if err != nil {
+		return fmt.Errorf("error getting last insert id: %w", err)
+	}
+
+	group.ID = int(id)
 	return nil
 }
 
 func (r *GroupRepository) UpdateGroup(ctx context.Context, group *models.Group) error {
-	query := `
-		UPDATE groups
-		SET name = ?, description = ?
-		WHERE id = ?
-		RETURNING id, name, description
-	`
-
-	err := r.db.QueryRowContext(
+	result, err := r.db.ExecContext(
 		ctx,
-		query,
+		"UPDATE groups SET name = ?, description = ? WHERE id = ?",
 		group.Name,
 		group.Description,
 		group.ID,
-	).Scan(
-		&group.ID,
-		&group.Name,
-		&group.Description,
 	)
-
 	if err != nil {
 		return fmt.Errorf("error updating group: %w", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("error checking rows affected: %w", err)
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("group with id %d not found", group.ID)
 	}
 
 	return nil

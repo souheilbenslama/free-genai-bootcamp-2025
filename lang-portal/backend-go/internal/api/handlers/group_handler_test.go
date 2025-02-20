@@ -68,7 +68,7 @@ var _ = Describe("GroupHandler", func() {
 				w := httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 
-				Expect(w.Code).To(Equal(http.StatusOK))
+				Expect(w.Code).To(Equal(http.StatusCreated))
 
 				var response models.Group
 				err = json.Unmarshal(w.Body.Bytes(), &response)

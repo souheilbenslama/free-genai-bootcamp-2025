@@ -44,6 +44,10 @@ type DashboardStats struct {
 	TotalStudySessions int     `json:"total_study_sessions"`
 	TotalActiveGroups  int     `json:"total_active_groups"`
 	StudyStreakDays    int     `json:"study_streak_days"`
+	TotalWords        int     `json:"total_words"`
+	TotalGroups       int     `json:"total_groups"`
+	CorrectAnswers    int     `json:"correct_answers"`
+	IncorrectAnswers  int     `json:"incorrect_answers"`
 }
 
 type StudyProgress struct {

@@ -1,0 +1,1514 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>api: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">github.com/souheilbenslama/free-genai-bootcamp-2025/lang-portal/backend-go/cmd/api/main.go (0.0%)</option>
+				
+				<option value="file1">github.com/souheilbenslama/free-genai-bootcamp-2025/lang-portal/backend-go/internal/api/handlers/group_handler.go (37.1%)</option>
+				
+				<option value="file2">github.com/souheilbenslama/free-genai-bootcamp-2025/lang-portal/backend-go/internal/api/handlers/study_handler.go (0.0%)</option>
+				
+				<option value="file3">github.com/souheilbenslama/free-genai-bootcamp-2025/lang-portal/backend-go/internal/api/handlers/test/test_utils.go (70.0%)</option>
+				
+				<option value="file4">github.com/souheilbenslama/free-genai-bootcamp-2025/lang-portal/backend-go/internal/api/handlers/word_handler.go (41.1%)</option>
+				
+				<option value="file5">github.com/souheilbenslama/free-genai-bootcamp-2025/lang-portal/backend-go/internal/api/routes/routes.go (0.0%)</option>
+				
+				<option value="file6">github.com/souheilbenslama/free-genai-bootcamp-2025/lang-portal/backend-go/internal/repository/sqlite/group_repository.go (36.5%)</option>
+				
+				<option value="file7">github.com/souheilbenslama/free-genai-bootcamp-2025/lang-portal/backend-go/internal/repository/sqlite/study_repository.go (0.0%)</option>
+				
+				<option value="file8">github.com/souheilbenslama/free-genai-bootcamp-2025/lang-portal/backend-go/internal/repository/sqlite/word_repository.go (50.0%)</option>
+				
+				<option value="file9">github.com/souheilbenslama/free-genai-bootcamp-2025/lang-portal/backend-go/internal/seeder/seeder.go (0.0%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package main
+
+import (
+        "database/sql"
+        "fmt"
+        "log"
+        "os"
+        "path/filepath"
+        "runtime"
+
+        "github.com/gin-gonic/gin"
+        _ "github.com/mattn/go-sqlite3"
+        "github.com/souheilbenslama/free-genai-bootcamp-2025/lang-portal/backend-go/internal/api/handlers"
+        "github.com/souheilbenslama/free-genai-bootcamp-2025/lang-portal/backend-go/internal/api/routes"
+        "github.com/souheilbenslama/free-genai-bootcamp-2025/lang-portal/backend-go/internal/repository/sqlite"
+        "github.com/souheilbenslama/free-genai-bootcamp-2025/lang-portal/backend-go/internal/seeder"
+)
+
+// getProjectRoot returns the absolute path to the project root directory
+func getProjectRoot() (string, error) <span class="cov0" title="0">{
+        _, filename, _, ok := runtime.Caller(0)
+        if !ok </span><span class="cov0" title="0">{
+                return "", fmt.Errorf("failed to get current file path")
+        }</span>
+        // Go up two directories from cmd/api/main.go to reach project root
+        <span class="cov0" title="0">projectRoot := filepath.Join(filepath.Dir(filename), "..", "..")
+        return filepath.Abs(projectRoot)</span>
+}
+
+func main() <span class="cov0" title="0">{
+        // Get the project root directory
+        projectRoot, err := getProjectRoot()
+        if err != nil </span><span class="cov0" title="0">{
+                log.Fatal("Failed to get project root:", err)
+        }</span>
+
+        // Initialize SQLite database
+        <span class="cov0" title="0">dbPath := filepath.Join(projectRoot, "words.db")
+        db, err := sql.Open("sqlite3", dbPath)
+        if err != nil </span><span class="cov0" title="0">{
+                log.Fatal("Failed to connect to database:", err)
+        }</span>
+        <span class="cov0" title="0">defer db.Close()
+
+        // Apply migrations
+        migrationPath := filepath.Join(projectRoot, "database", "migrations", "001_initial_schema.sql")
+        log.Printf("Looking for migration file at: %s", migrationPath)
+        
+        migrationSQL, err := os.ReadFile(migrationPath)
+        if err != nil </span><span class="cov0" title="0">{
+                log.Fatal("Failed to read migration file:", err)
+        }</span>
+
+        <span class="cov0" title="0">if _, err := db.Exec(string(migrationSQL)); err != nil </span><span class="cov0" title="0">{
+                log.Fatal("Failed to apply migrations:", err)
+        }</span>
+
+        // Load seed data from JSON files
+        <span class="cov0" title="0">seedDir := filepath.Join(projectRoot, "database", "seed")
+        log.Printf("Loading seed data from directory: %s", seedDir)
+        
+        if err := seeder.LoadSeedData(db, seedDir); err != nil </span><span class="cov0" title="0">{
+                log.Fatal("Failed to load seed data:", err)
+        }</span>
+
+        <span class="cov0" title="0">log.Println("Database initialized with seed data")
+
+        // Initialize repositories
+        wordRepo := sqlite.NewWordRepository(db)
+        groupRepo := sqlite.NewGroupRepository(db)
+        studyRepo := sqlite.NewStudyRepository(db)
+
+        // Initialize handlers
+        wordHandler := handlers.NewWordHandler(wordRepo)
+        groupHandler := handlers.NewGroupHandler(groupRepo)
+        studyHandler := handlers.NewStudyHandler(studyRepo)
+
+        // Initialize Gin router
+        r := gin.Default()
+
+        // Setup routes
+        routes.SetupRoutes(r, wordHandler, groupHandler, studyHandler)
+
+        // Start server
+        log.Printf("Server starting on :8080... (Project root: %s)", projectRoot)
+        if err := r.Run(":8080"); err != nil </span><span class="cov0" title="0">{
+                log.Fatal("Failed to start server:", err)
+        }</span>
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package handlers
+
+import (
+        "database/sql"
+        "net/http"
+        "strconv"
+
+        "github.com/gin-gonic/gin"
+        "github.com/souheilbenslama/free-genai-bootcamp-2025/lang-portal/backend-go/internal/models"
+        "github.com/souheilbenslama/free-genai-bootcamp-2025/lang-portal/backend-go/internal/repository/sqlite"
+)
+
+type GroupHandler struct {
+        repo *sqlite.GroupRepository
+}
+
+func (h *GroupHandler) CreateGroup(c *gin.Context) <span class="cov8" title="1">{
+        var group models.Group
+        if err := c.ShouldBindJSON(&amp;group); err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+                return
+        }</span>
+
+        // Validate required fields
+        <span class="cov8" title="1">if group.Name == "" </span><span class="cov8" title="1">{
+                c.JSON(http.StatusBadRequest, gin.H{"error": "name is required"})
+                return
+        }</span>
+
+        <span class="cov8" title="1">err := h.repo.CreateGroup(c.Request.Context(), &amp;group)
+        if err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+                return
+        }</span>
+
+        <span class="cov8" title="1">c.JSON(http.StatusOK, group)</span>
+}
+
+func (h *GroupHandler) UpdateGroup(c *gin.Context) <span class="cov0" title="0">{
+        id := c.Param("id")
+        groupID, err := strconv.Atoi(id)
+        if err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusBadRequest, gin.H{"error": "invalid group ID"})
+                return
+        }</span>
+
+        <span class="cov0" title="0">var group models.Group
+        if err := c.ShouldBindJSON(&amp;group); err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+                return
+        }</span>
+
+        <span class="cov0" title="0">group.ID = groupID
+        err = h.repo.UpdateGroup(c.Request.Context(), &amp;group)
+        if err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+                return
+        }</span>
+
+        <span class="cov0" title="0">c.JSON(http.StatusOK, group)</span>
+}
+
+func (h *GroupHandler) DeleteGroup(c *gin.Context) <span class="cov0" title="0">{
+        id := c.Param("id")
+        groupID, err := strconv.Atoi(id)
+        if err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusBadRequest, gin.H{"error": "invalid group ID"})
+                return
+        }</span>
+
+        <span class="cov0" title="0">err = h.repo.DeleteGroup(c.Request.Context(), groupID)
+        if err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+                return
+        }</span>
+
+        <span class="cov0" title="0">c.JSON(http.StatusOK, gin.H{"message": "group deleted successfully"})</span>
+}
+
+func (h *GroupHandler) AddWordToGroup(c *gin.Context) <span class="cov8" title="1">{
+        groupID, err := strconv.Atoi(c.Param("id"))
+        if err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusBadRequest, gin.H{"error": "invalid group ID"})
+                return
+        }</span>
+
+        <span class="cov8" title="1">var req struct {
+                WordID int `json:"word_id" binding:"required"`
+        }
+
+        if err := c.ShouldBindJSON(&amp;req); err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+                return
+        }</span>
+
+        // Check if group exists
+        <span class="cov8" title="1">group, err := h.repo.GetByID(groupID)
+        if err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+                return
+        }</span>
+        <span class="cov8" title="1">if group == nil </span><span class="cov8" title="1">{
+                c.JSON(http.StatusNotFound, gin.H{"error": "group not found"})
+                return
+        }</span>
+
+        <span class="cov8" title="1">err = h.repo.AddWordToGroup(c.Request.Context(), groupID, req.WordID)
+        if err != nil </span><span class="cov8" title="1">{
+                if err == sql.ErrNoRows </span><span class="cov8" title="1">{
+                        c.JSON(http.StatusNotFound, gin.H{"error": "word not found"})
+                        return
+                }</span>
+                <span class="cov0" title="0">c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+                return</span>
+        }
+
+        <span class="cov8" title="1">c.JSON(http.StatusOK, gin.H{"message": "word added to group successfully"})</span>
+}
+
+func (h *GroupHandler) RemoveWordFromGroup(c *gin.Context) <span class="cov0" title="0">{
+        groupID, err := strconv.Atoi(c.Param("id"))
+        if err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusBadRequest, gin.H{"error": "invalid group ID"})
+                return
+        }</span>
+
+        <span class="cov0" title="0">wordID, err := strconv.Atoi(c.Param("word_id"))
+        if err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusBadRequest, gin.H{"error": "invalid word ID"})
+                return
+        }</span>
+
+        <span class="cov0" title="0">err = h.repo.RemoveWordFromGroup(c.Request.Context(), groupID, wordID)
+        if err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+                return
+        }</span>
+
+        <span class="cov0" title="0">c.JSON(http.StatusOK, gin.H{"message": "word removed from group successfully"})</span>
+}
+
+func NewGroupHandler(repo *sqlite.GroupRepository) *GroupHandler <span class="cov8" title="1">{
+        return &amp;GroupHandler{repo: repo}
+}</span>
+
+func (h *GroupHandler) GetGroups(c *gin.Context) <span class="cov0" title="0">{
+        page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+        pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "100"))
+
+        groups, total, err := h.repo.GetAll(page, pageSize)
+        if err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+                return
+        }</span>
+
+        <span class="cov0" title="0">c.JSON(http.StatusOK, gin.H{
+                "items": groups,
+                "pagination": gin.H{
+                        "current_page":    page,
+                        "total_pages":     (total + pageSize - 1) / pageSize,
+                        "total_items":     total,
+                        "items_per_page":  pageSize,
+                },
+        })</span>
+}
+
+func (h *GroupHandler) GetGroup(c *gin.Context) <span class="cov8" title="1">{
+        id, err := strconv.Atoi(c.Param("id"))
+        if err != nil </span><span class="cov8" title="1">{
+                c.JSON(http.StatusBadRequest, gin.H{"error": "invalid group ID"})
+                return
+        }</span>
+
+        <span class="cov8" title="1">group, err := h.repo.GetByID(id)
+        if err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+                return
+        }</span>
+
+        <span class="cov8" title="1">if group == nil </span><span class="cov8" title="1">{
+                c.JSON(http.StatusNotFound, gin.H{"error": "group not found"})
+                return
+        }</span>
+
+        // Get words in this group
+        <span class="cov8" title="1">words, err := h.repo.GetGroupWords(id)
+        if err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+                return
+        }</span>
+
+        <span class="cov8" title="1">c.JSON(http.StatusOK, gin.H{
+                "id":          group.ID,
+                "name":        group.Name,
+                "description": group.Description,
+                "words":       words,
+        })</span>
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package handlers
+
+import (
+        "net/http"
+        "strconv"
+
+        "github.com/gin-gonic/gin"
+        "github.com/souheilbenslama/free-genai-bootcamp-2025/lang-portal/backend-go/internal/repository/sqlite"
+)
+
+type StudyHandler struct {
+        repo *sqlite.StudyRepository
+}
+
+func NewStudyHandler(repo *sqlite.StudyRepository) *StudyHandler <span class="cov0" title="0">{
+        return &amp;StudyHandler{repo: repo}
+}</span>
+
+func (h *StudyHandler) GetLastStudySession(c *gin.Context) <span class="cov0" title="0">{
+        session, err := h.repo.GetLastStudySession()
+        if err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+                return
+        }</span>
+
+        <span class="cov0" title="0">if session == nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusNotFound, gin.H{"error": "no study sessions found"})
+                return
+        }</span>
+
+        <span class="cov0" title="0">c.JSON(http.StatusOK, session)</span>
+}
+
+func (h *StudyHandler) GetStudyProgress(c *gin.Context) <span class="cov0" title="0">{
+        progress, err := h.repo.GetStudyProgress()
+        if err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+                return
+        }</span>
+
+        <span class="cov0" title="0">c.JSON(http.StatusOK, progress)</span>
+}
+
+func (h *StudyHandler) GetQuickStats(c *gin.Context) <span class="cov0" title="0">{
+        stats, err := h.repo.GetQuickStats()
+        if err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+                return
+        }</span>
+
+        <span class="cov0" title="0">c.JSON(http.StatusOK, stats)</span>
+}
+
+type StartStudySessionRequest struct {
+        GroupID int `json:"group_id" binding:"required"`
+}
+
+func (h *StudyHandler) StartStudySession(c *gin.Context) <span class="cov0" title="0">{
+        var req StartStudySessionRequest
+        if err := c.ShouldBindJSON(&amp;req); err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+                return
+        }</span>
+
+        <span class="cov0" title="0">session, err := h.repo.CreateStudySession(req.GroupID)
+        if err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+                return
+        }</span>
+
+        <span class="cov0" title="0">c.JSON(http.StatusCreated, session)</span>
+}
+
+type WordReviewRequest struct {
+        WordID  int  `json:"word_id" binding:"required"`
+        Correct bool `json:"correct" binding:"required"`
+}
+
+func (h *StudyHandler) RecordWordReview(c *gin.Context) <span class="cov0" title="0">{
+        sessionID, err := strconv.Atoi(c.Param("session_id"))
+        if err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusBadRequest, gin.H{"error": "invalid session ID"})
+                return
+        }</span>
+
+        <span class="cov0" title="0">var req WordReviewRequest
+        if err := c.ShouldBindJSON(&amp;req); err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+                return
+        }</span>
+
+        <span class="cov0" title="0">err = h.repo.RecordWordReview(sessionID, req.WordID, req.Correct)
+        if err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+                return
+        }</span>
+
+        <span class="cov0" title="0">c.Status(http.StatusNoContent)</span>
+}
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package test
+
+import (
+        "database/sql"
+        "log"
+        "os"
+
+        _ "github.com/mattn/go-sqlite3"
+)
+
+func SetupTestDB() *sql.DB <span class="cov8" title="1">{
+        // Create a temporary database file
+        tmpfile, err := os.CreateTemp("", "test-*.db")
+        if err != nil </span><span class="cov0" title="0">{
+                log.Fatal(err)
+        }</span>
+
+        // Open the database
+        <span class="cov8" title="1">db, err := sql.Open("sqlite3", tmpfile.Name())
+        if err != nil </span><span class="cov0" title="0">{
+                log.Fatal(err)
+        }</span>
+
+        // Create tables
+        <span class="cov8" title="1">_, err = db.Exec(`
+                CREATE TABLE IF NOT EXISTS words (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        german TEXT NOT NULL,
+                        english TEXT NOT NULL,
+                        parts TEXT NOT NULL
+                );
+
+                CREATE TABLE IF NOT EXISTS groups (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        name TEXT NOT NULL,
+                        description TEXT,
+                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                );
+
+                CREATE TABLE IF NOT EXISTS words_groups (
+                        word_id INTEGER,
+                        group_id INTEGER,
+                        FOREIGN KEY (word_id) REFERENCES words(id),
+                        FOREIGN KEY (group_id) REFERENCES groups(id),
+                        PRIMARY KEY (word_id, group_id)
+                );
+        `)
+        if err != nil </span><span class="cov0" title="0">{
+                log.Fatal(err)
+        }</span>
+
+        <span class="cov8" title="1">return db</span>
+}
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">package handlers
+
+import (
+        "database/sql"
+        "net/http"
+        "strconv"
+
+        "github.com/gin-gonic/gin"
+        "github.com/souheilbenslama/free-genai-bootcamp-2025/lang-portal/backend-go/internal/models"
+        "github.com/souheilbenslama/free-genai-bootcamp-2025/lang-portal/backend-go/internal/repository"
+)
+
+type WordHandler struct {
+        wordRepo repository.WordRepository
+}
+
+func (h *WordHandler) UpdateWord(c *gin.Context) <span class="cov0" title="0">{
+        id := c.Param("id")
+        wordID, err := strconv.Atoi(id)
+        if err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusBadRequest, gin.H{"error": "invalid word ID"})
+                return
+        }</span>
+
+        <span class="cov0" title="0">var word models.Word
+        if err := c.ShouldBindJSON(&amp;word); err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+                return
+        }</span>
+
+        <span class="cov0" title="0">word.ID = wordID
+        err = h.wordRepo.UpdateWord(c.Request.Context(), &amp;word)
+        if err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+                return
+        }</span>
+
+        <span class="cov0" title="0">c.JSON(http.StatusOK, word)</span>
+}
+
+func (h *WordHandler) DeleteWord(c *gin.Context) <span class="cov0" title="0">{
+        id := c.Param("id")
+        wordID, err := strconv.Atoi(id)
+        if err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusBadRequest, gin.H{"error": "invalid word ID"})
+                return
+        }</span>
+
+        <span class="cov0" title="0">err = h.wordRepo.DeleteWord(c.Request.Context(), wordID)
+        if err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+                return
+        }</span>
+
+        <span class="cov0" title="0">c.JSON(http.StatusOK, gin.H{"message": "word deleted successfully"})</span>
+}
+
+func NewWordHandler(wordRepo repository.WordRepository) *WordHandler <span class="cov8" title="1">{
+        return &amp;WordHandler{wordRepo: wordRepo}
+}</span>
+
+func (h *WordHandler) GetWord(c *gin.Context) <span class="cov8" title="1">{
+        id, err := strconv.Atoi(c.Param("id"))
+        if err != nil </span><span class="cov8" title="1">{
+                c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
+                return
+        }</span>
+
+        <span class="cov8" title="1">word, err := h.wordRepo.GetWord(c.Request.Context(), id)
+        if err != nil </span><span class="cov8" title="1">{
+                if err == sql.ErrNoRows </span><span class="cov8" title="1">{
+                        c.JSON(http.StatusNotFound, gin.H{"error": "word not found"})
+                        return
+                }</span>
+                <span class="cov0" title="0">c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+                return</span>
+        }
+
+        <span class="cov8" title="1">c.JSON(http.StatusOK, word)</span>
+}
+
+func (h *WordHandler) ListWords(c *gin.Context) <span class="cov8" title="1">{
+        offset, _ := strconv.Atoi(c.DefaultQuery("offset", "0"))
+        limit, _ := strconv.Atoi(c.DefaultQuery("limit", "100"))
+
+        words, err := h.wordRepo.ListWords(c.Request.Context(), offset, limit)
+        if err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+                return
+        }</span>
+
+        <span class="cov8" title="1">c.JSON(http.StatusOK, gin.H{
+                "items": words,
+                "pagination": gin.H{
+                        "offset": offset,
+                        "limit":  limit,
+                },
+        })</span>
+}
+
+func (h *WordHandler) CreateWord(c *gin.Context) <span class="cov8" title="1">{
+        var word models.Word
+        if err := c.ShouldBindJSON(&amp;word); err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+                return
+        }</span>
+
+        // Validate required fields
+        <span class="cov8" title="1">if word.German == "" || word.English == "" || word.Parts == "" </span><span class="cov8" title="1">{
+                c.JSON(http.StatusBadRequest, gin.H{"error": "german, english, and parts are required"})
+                return
+        }</span>
+
+        <span class="cov8" title="1">if err := h.wordRepo.CreateWord(c.Request.Context(), &amp;word); err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+                return
+        }</span>
+
+        <span class="cov8" title="1">c.JSON(http.StatusOK, word)</span>
+}
+</pre>
+		
+		<pre class="file" id="file5" style="display: none">package routes
+
+import (
+        "github.com/gin-gonic/gin"
+        "github.com/souheilbenslama/free-genai-bootcamp-2025/lang-portal/backend-go/internal/api/handlers"
+)
+
+func SetupRoutes(
+        r *gin.Engine,
+        wordHandler *handlers.WordHandler,
+        groupHandler *handlers.GroupHandler,
+        studyHandler *handlers.StudyHandler,
+) <span class="cov0" title="0">{
+        api := r.Group("/api")
+        </span><span class="cov0" title="0">{
+                // Word routes
+                words := api.Group("/words")
+                </span><span class="cov0" title="0">{
+                        words.GET("", wordHandler.ListWords)
+                        words.GET("/:id", wordHandler.GetWord)
+                        words.POST("", wordHandler.CreateWord)
+                        words.PUT("/:id", wordHandler.UpdateWord)
+                        words.DELETE("/:id", wordHandler.DeleteWord)
+                }</span>
+
+                // Group routes
+                <span class="cov0" title="0">groups := api.Group("/groups")
+                </span><span class="cov0" title="0">{
+                        groups.GET("", groupHandler.GetGroups)
+                        groups.GET("/:id", groupHandler.GetGroup)
+                        groups.POST("", groupHandler.CreateGroup)
+                        groups.PUT("/:id", groupHandler.UpdateGroup)
+                        groups.DELETE("/:id", groupHandler.DeleteGroup)
+                        groups.POST("/:id/words", groupHandler.AddWordToGroup)
+                        groups.DELETE("/:id/words/:word_id", groupHandler.RemoveWordFromGroup)
+                }</span>
+
+                // Dashboard routes
+                <span class="cov0" title="0">dashboard := api.Group("/dashboard")
+                </span><span class="cov0" title="0">{
+                        dashboard.GET("/last_study_session", studyHandler.GetLastStudySession)
+                        dashboard.GET("/study_progress", studyHandler.GetStudyProgress)
+                        dashboard.GET("/quick_stats", studyHandler.GetQuickStats)
+                }</span>
+
+                // Study session routes
+                <span class="cov0" title="0">study := api.Group("/study-sessions")
+                </span><span class="cov0" title="0">{
+                        study.POST("", studyHandler.StartStudySession)
+                        study.POST("/:session_id/reviews", studyHandler.RecordWordReview)
+                }</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file6" style="display: none">package sqlite
+
+import (
+        "context"
+        "database/sql"
+        "fmt"
+
+        "github.com/souheilbenslama/free-genai-bootcamp-2025/lang-portal/backend-go/internal/models"
+)
+
+type GroupRepository struct {
+        db *sql.DB
+}
+
+func (r *GroupRepository) CreateGroup(ctx context.Context, group *models.Group) error <span class="cov8" title="1">{
+        query := `
+                INSERT INTO groups (name, description)
+                VALUES (?, ?)
+                RETURNING id, name, description
+        `
+
+        err := r.db.QueryRowContext(
+                ctx,
+                query,
+                group.Name,
+                group.Description,
+        ).Scan(
+                &amp;group.ID,
+                &amp;group.Name,
+                &amp;group.Description,
+        )
+
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("error creating group: %w", err)
+        }</span>
+
+        <span class="cov8" title="1">return nil</span>
+}
+
+func (r *GroupRepository) UpdateGroup(ctx context.Context, group *models.Group) error <span class="cov0" title="0">{
+        query := `
+                UPDATE groups
+                SET name = ?, description = ?
+                WHERE id = ?
+                RETURNING id, name, description
+        `
+
+        err := r.db.QueryRowContext(
+                ctx,
+                query,
+                group.Name,
+                group.Description,
+                group.ID,
+        ).Scan(
+                &amp;group.ID,
+                &amp;group.Name,
+                &amp;group.Description,
+        )
+
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("error updating group: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">return nil</span>
+}
+
+func (r *GroupRepository) DeleteGroup(ctx context.Context, id int) error <span class="cov0" title="0">{
+        // First delete any word associations
+        _, err := r.db.ExecContext(ctx, "DELETE FROM words_groups WHERE group_id = ?", id)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("error deleting group associations: %w", err)
+        }</span>
+
+        // Then delete the group
+        <span class="cov0" title="0">result, err := r.db.ExecContext(ctx, "DELETE FROM groups WHERE id = ?", id)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("error deleting group: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">rowsAffected, err := result.RowsAffected()
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("error checking rows affected: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">if rowsAffected == 0 </span><span class="cov0" title="0">{
+                return fmt.Errorf("group with id %d not found", id)
+        }</span>
+
+        <span class="cov0" title="0">return nil</span>
+}
+
+func (r *GroupRepository) AddWordToGroup(ctx context.Context, groupID, wordID int) error <span class="cov8" title="1">{
+        // Check if the word exists
+        var wordExists bool
+        err := r.db.QueryRowContext(
+                ctx,
+                "SELECT EXISTS(SELECT 1 FROM words WHERE id = ?)",
+                wordID,
+        ).Scan(&amp;wordExists)
+
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("error checking word existence: %w", err)
+        }</span>
+
+        <span class="cov8" title="1">if !wordExists </span><span class="cov8" title="1">{
+                return sql.ErrNoRows
+        }</span>
+
+        // Check if the association already exists
+        <span class="cov8" title="1">var exists bool
+        err = r.db.QueryRowContext(
+                ctx,
+                "SELECT EXISTS(SELECT 1 FROM words_groups WHERE group_id = ? AND word_id = ?)",
+                groupID,
+                wordID,
+        ).Scan(&amp;exists)
+
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("error checking word-group association: %w", err)
+        }</span>
+
+        <span class="cov8" title="1">if exists </span><span class="cov0" title="0">{
+                return fmt.Errorf("word %d is already in group %d", wordID, groupID)
+        }</span>
+
+        // Add the association
+        <span class="cov8" title="1">_, err = r.db.ExecContext(
+                ctx,
+                "INSERT INTO words_groups (group_id, word_id) VALUES (?, ?)",
+                groupID,
+                wordID,
+        )
+
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("error adding word to group: %w", err)
+        }</span>
+
+        <span class="cov8" title="1">return nil</span>
+}
+
+func (r *GroupRepository) RemoveWordFromGroup(ctx context.Context, groupID, wordID int) error <span class="cov0" title="0">{
+        result, err := r.db.ExecContext(
+                ctx,
+                "DELETE FROM words_groups WHERE group_id = ? AND word_id = ?",
+                groupID,
+                wordID,
+        )
+
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("error removing word from group: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">rowsAffected, err := result.RowsAffected()
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("error checking rows affected: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">if rowsAffected == 0 </span><span class="cov0" title="0">{
+                return fmt.Errorf("word %d is not in group %d", wordID, groupID)
+        }</span>
+
+        <span class="cov0" title="0">return nil</span>
+}
+
+func NewGroupRepository(db *sql.DB) *GroupRepository <span class="cov8" title="1">{
+        return &amp;GroupRepository{db: db}
+}</span>
+
+func (r *GroupRepository) GetAll(page, pageSize int) ([]models.Group, int, error) <span class="cov0" title="0">{
+        offset := (page - 1) * pageSize
+
+        // Get total count
+        var total int
+        err := r.db.QueryRow("SELECT COUNT(*) FROM groups").Scan(&amp;total)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, 0, fmt.Errorf("error counting groups: %w", err)
+        }</span>
+
+        // Get groups with word count
+        <span class="cov0" title="0">query := `
+                SELECT g.id, g.name, COUNT(wg.word_id) as word_count
+                FROM groups g
+                LEFT JOIN words_groups wg ON g.id = wg.group_id
+                GROUP BY g.id
+                ORDER BY g.id
+                LIMIT ? OFFSET ?
+        `
+
+        rows, err := r.db.Query(query, pageSize, offset)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, 0, fmt.Errorf("error querying groups: %w", err)
+        }</span>
+        <span class="cov0" title="0">defer rows.Close()
+
+        var groups []models.Group
+        for rows.Next() </span><span class="cov0" title="0">{
+                var g models.Group
+                if err := rows.Scan(&amp;g.ID, &amp;g.Name, &amp;g.WordCount); err != nil </span><span class="cov0" title="0">{
+                        return nil, 0, fmt.Errorf("error scanning group: %w", err)
+                }</span>
+                <span class="cov0" title="0">groups = append(groups, g)</span>
+        }
+
+        <span class="cov0" title="0">return groups, total, nil</span>
+}
+
+func (r *GroupRepository) GetByID(id int) (*models.Group, error) <span class="cov8" title="1">{
+        query := `
+                SELECT g.id, g.name, g.description, COUNT(wg.word_id) as word_count
+                FROM groups g
+                LEFT JOIN words_groups wg ON g.id = wg.group_id
+                WHERE g.id = ?
+                GROUP BY g.id
+        `
+
+        var group models.Group
+        err := r.db.QueryRow(query, id).Scan(&amp;group.ID, &amp;group.Name, &amp;group.Description, &amp;group.WordCount)
+        if err == sql.ErrNoRows </span><span class="cov8" title="1">{
+                return nil, nil
+        }</span>
+        <span class="cov8" title="1">if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("error querying group: %w", err)
+        }</span>
+
+        <span class="cov8" title="1">return &amp;group, nil</span>
+}
+
+func (r *GroupRepository) GetGroupWords(groupID int) ([]models.Word, error) <span class="cov8" title="1">{
+        query := `
+                SELECT w.id, w.german, w.english, w.parts
+                FROM words w
+                JOIN words_groups wg ON w.id = wg.word_id
+                WHERE wg.group_id = ?
+                ORDER BY w.id
+        `
+
+        rows, err := r.db.Query(query, groupID)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("error querying group words: %w", err)
+        }</span>
+        <span class="cov8" title="1">defer rows.Close()
+
+        var words []models.Word
+        for rows.Next() </span><span class="cov0" title="0">{
+                var w models.Word
+                if err := rows.Scan(&amp;w.ID, &amp;w.German, &amp;w.English, &amp;w.Parts); err != nil </span><span class="cov0" title="0">{
+                        return nil, fmt.Errorf("error scanning word: %w", err)
+                }</span>
+                <span class="cov0" title="0">words = append(words, w)</span>
+        }
+
+        <span class="cov8" title="1">return words, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file7" style="display: none">package sqlite
+
+import (
+        "database/sql"
+        "fmt"
+        "time"
+
+        "github.com/souheilbenslama/free-genai-bootcamp-2025/lang-portal/backend-go/internal/models"
+)
+
+type StudyRepository struct {
+        db *sql.DB
+}
+
+func NewStudyRepository(db *sql.DB) *StudyRepository <span class="cov0" title="0">{
+        return &amp;StudyRepository{db: db}
+}</span>
+
+func (r *StudyRepository) CreateStudySession(groupID int) (*models.StudySession, error) <span class="cov0" title="0">{
+        tx, err := r.db.Begin()
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("error beginning transaction: %w", err)
+        }</span>
+        <span class="cov0" title="0">defer tx.Rollback()
+
+        // Create study session first
+        sessionResult, err := tx.Exec(
+                "INSERT INTO study_sessions (group_id, created_at) VALUES (?, ?)",
+                groupID,
+                time.Now(),
+        )
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("error creating study session: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">sessionID, err := sessionResult.LastInsertId()
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("error getting session ID: %w", err)
+        }</span>
+
+        // Create study activity
+        <span class="cov0" title="0">activityResult, err := tx.Exec(
+                "INSERT INTO study_activities (study_session_id, group_id, created_at) VALUES (?, ?, ?)",
+                sessionID,
+                groupID,
+                time.Now(),
+        )
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("error creating study activity: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">activityID, err := activityResult.LastInsertId()
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("error getting activity ID: %w", err)
+        }</span>
+
+        // Update study session with activity ID
+        <span class="cov0" title="0">_, err = tx.Exec(
+                "UPDATE study_sessions SET study_activity_id = ? WHERE id = ?",
+                activityID,
+                sessionID,
+        )
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("error updating study session: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">if err := tx.Commit(); err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("error committing transaction: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">return &amp;models.StudySession{
+                ID:              int(sessionID),
+                GroupID:         int(groupID),
+                StudyActivityID: int(activityID),
+                CreatedAt:       time.Now(),
+        }, nil</span>
+}
+
+func (r *StudyRepository) GetLastStudySession() (*models.StudySession, error) <span class="cov0" title="0">{
+        query := `
+                SELECT id, group_id, study_activity_id, created_at
+                FROM study_sessions
+                ORDER BY created_at DESC
+                LIMIT 1
+        `
+
+        var session models.StudySession
+        err := r.db.QueryRow(query).Scan(
+                &amp;session.ID,
+                &amp;session.GroupID,
+                &amp;session.StudyActivityID,
+                &amp;session.CreatedAt,
+        )
+        if err == sql.ErrNoRows </span><span class="cov0" title="0">{
+                return nil, nil
+        }</span>
+        <span class="cov0" title="0">if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("error querying last study session: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">return &amp;session, nil</span>
+}
+
+func (r *StudyRepository) RecordWordReview(sessionID, wordID int, correct bool) error <span class="cov0" title="0">{
+        _, err := r.db.Exec(
+                "INSERT INTO word_review_items (word_id, study_session_id, correct, created_at) VALUES (?, ?, ?, ?)",
+                wordID,
+                sessionID,
+                correct,
+                time.Now(),
+        )
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("error recording word review: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">return nil</span>
+}
+
+func (r *StudyRepository) GetStudyProgress() (*models.StudyProgress, error) <span class="cov0" title="0">{
+        // Get total available words
+        var totalWords int
+        err := r.db.QueryRow("SELECT COUNT(*) FROM words").Scan(&amp;totalWords)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("error counting words: %w", err)
+        }</span>
+
+        // Get total words studied (unique words in word_review_items)
+        <span class="cov0" title="0">var totalStudied int
+        err = r.db.QueryRow(`
+                SELECT COUNT(DISTINCT word_id)
+                FROM word_review_items
+        `).Scan(&amp;totalStudied)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("error counting studied words: %w", err)
+        }</span>
+
+        // Calculate mastery percentage (words with &gt; 80% correct answers)
+        <span class="cov0" title="0">var masteredWords int
+        err = r.db.QueryRow(`
+                WITH word_stats AS (
+                        SELECT word_id,
+                                   COUNT(*) as total_reviews,
+                                   SUM(CASE WHEN correct THEN 1 ELSE 0 END) as correct_reviews
+                        FROM word_review_items
+                        GROUP BY word_id
+                )
+                SELECT COUNT(*)
+                FROM word_stats
+                WHERE CAST(correct_reviews AS FLOAT) / total_reviews &gt;= 0.8
+        `).Scan(&amp;masteredWords)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("error calculating mastery: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">masteryPercentage := 0.0
+        if totalStudied &gt; 0 </span><span class="cov0" title="0">{
+                masteryPercentage = float64(masteredWords) / float64(totalStudied) * 100
+        }</span>
+
+        <span class="cov0" title="0">return &amp;models.StudyProgress{
+                TotalWordsStudied:   totalStudied,
+                TotalAvailableWords: totalWords,
+                MasteryPercentage:   masteryPercentage,
+        }, nil</span>
+}
+
+func (r *StudyRepository) GetQuickStats() (*models.DashboardStats, error) <span class="cov0" title="0">{
+        // Get success rate
+        var correctCount, totalCount int
+        err := r.db.QueryRow(`
+                SELECT 
+                        COALESCE(SUM(CASE WHEN correct THEN 1 ELSE 0 END), 0) as correct_count,
+                        COALESCE(COUNT(*), 0) as total_count
+                FROM word_review_items
+        `).Scan(&amp;correctCount, &amp;totalCount)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("error calculating success rate: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">successRate := 0.0
+        if totalCount &gt; 0 </span><span class="cov0" title="0">{
+                successRate = float64(correctCount) / float64(totalCount)
+        }</span>
+
+        // Get total study sessions
+        <span class="cov0" title="0">var totalSessions int
+        err = r.db.QueryRow("SELECT COALESCE(COUNT(*), 0) FROM study_sessions").Scan(&amp;totalSessions)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("error counting study sessions: %w", err)
+        }</span>
+
+        // Get total active groups (groups with at least one study session)
+        <span class="cov0" title="0">var activeGroups int
+        err = r.db.QueryRow(`
+                SELECT COALESCE(COUNT(DISTINCT group_id), 0)
+                FROM study_sessions
+        `).Scan(&amp;activeGroups)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("error counting active groups: %w", err)
+        }</span>
+
+        // Calculate study streak (consecutive days with study sessions)
+        <span class="cov0" title="0">var streak int
+        err = r.db.QueryRow(`
+                WITH RECURSIVE dates AS (
+                        SELECT date(created_at) as study_date
+                        FROM (
+                                SELECT created_at
+                                FROM study_sessions
+                                ORDER BY created_at DESC
+                                LIMIT 1
+                        )
+                
+                        UNION ALL
+                
+                        SELECT date(d.study_date, '-1 day')
+                        FROM dates d
+                        WHERE EXISTS (
+                                SELECT 1
+                                FROM study_sessions s
+                                WHERE date(s.created_at) = date(d.study_date, '-1 day')
+                        )
+                )
+                SELECT COALESCE(COUNT(*), 0)
+                FROM dates
+        `).Scan(&amp;streak)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("error calculating study streak: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">return &amp;models.DashboardStats{
+                SuccessRate:         successRate,
+                TotalStudySessions: totalSessions,
+                TotalActiveGroups:  activeGroups,
+                StudyStreakDays:    streak,
+        }, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file8" style="display: none">package sqlite
+
+import (
+        "context"
+        "database/sql"
+        "fmt"
+
+        "github.com/souheilbenslama/free-genai-bootcamp-2025/lang-portal/backend-go/internal/models"
+)
+
+type WordRepository struct {
+        db *sql.DB
+}
+
+
+
+func NewWordRepository(db *sql.DB) *WordRepository <span class="cov8" title="1">{
+        return &amp;WordRepository{db: db}
+}</span>
+
+func (r *WordRepository) GetWord(ctx context.Context, id int) (*models.Word, error) <span class="cov8" title="1">{
+        var word models.Word
+        err := r.db.QueryRowContext(ctx,
+                "SELECT id, german, english, parts FROM words WHERE id = ?",
+                id).Scan(&amp;word.ID, &amp;word.German, &amp;word.English, &amp;word.Parts)
+        if err != nil </span><span class="cov8" title="1">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">return &amp;word, nil</span>
+}
+
+func (r *WordRepository) ListWords(ctx context.Context, offset, limit int) ([]models.Word, error) <span class="cov8" title="1">{
+        rows, err := r.db.QueryContext(ctx,
+                "SELECT id, german, english, parts FROM words LIMIT ? OFFSET ?",
+                limit, offset)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">defer rows.Close()
+
+        var words []models.Word
+        for rows.Next() </span><span class="cov8" title="1">{
+                var word models.Word
+                if err := rows.Scan(&amp;word.ID, &amp;word.German, &amp;word.English, &amp;word.Parts); err != nil </span><span class="cov0" title="0">{
+                        return nil, err
+                }</span>
+                <span class="cov8" title="1">words = append(words, word)</span>
+        }
+        <span class="cov8" title="1">return words, nil</span>
+}
+
+func (r *WordRepository) CreateWord(ctx context.Context, word *models.Word) error <span class="cov8" title="1">{
+        result, err := r.db.ExecContext(ctx,
+                "INSERT INTO words (german, english, parts) VALUES (?, ?, ?)",
+                word.German, word.English, word.Parts)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov8" title="1">id, err := result.LastInsertId()
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov8" title="1">word.ID = int(id)
+        return nil</span>
+}
+
+func (r *WordRepository) UpdateWord(ctx context.Context, word *models.Word) error <span class="cov0" title="0">{
+        query := `
+                UPDATE words
+                SET german = ?, english = ?, parts = ?
+                WHERE id = ?
+                RETURNING id, german, english, parts
+        `
+
+        err := r.db.QueryRowContext(ctx,
+                query,
+                word.German,
+                word.English,
+                word.Parts,
+                word.ID,
+        ).Scan(
+                &amp;word.ID,
+                &amp;word.German,
+                &amp;word.English,
+                &amp;word.Parts,
+        )
+
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("error updating word: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">return nil</span>
+}
+
+func (r *WordRepository) DeleteWord(ctx context.Context, id int) error <span class="cov0" title="0">{
+        // First delete any associations in words_groups
+        _, err := r.db.ExecContext(ctx, "DELETE FROM words_groups WHERE word_id = ?", id)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("error deleting word associations: %w", err)
+        }</span>
+
+        // Then delete the word
+        <span class="cov0" title="0">result, err := r.db.ExecContext(ctx, "DELETE FROM words WHERE id = ?", id)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("error deleting word: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">rowsAffected, err := result.RowsAffected()
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("error checking rows affected: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">if rowsAffected == 0 </span><span class="cov0" title="0">{
+                return fmt.Errorf("word with id %d not found", id)
+        }</span>
+
+        <span class="cov0" title="0">return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file9" style="display: none">package seeder
+
+import (
+        "database/sql"
+        "encoding/json"
+        "fmt"
+        "os"
+        "path/filepath"
+)
+
+type WordData struct {
+        German  string     `json:"german"`
+        English string     `json:"english"`
+        Parts   WordParts `json:"parts"`
+}
+
+type WordParts struct {
+        Article string `json:"article"`
+        Plural  string `json:"plural"`
+}
+
+type WordsFile struct {
+        Words []WordData `json:"words"`
+}
+
+type GroupData struct {
+        Name  string   `json:"name"`
+        Words []string `json:"words"`
+}
+
+type GroupsFile struct {
+        Groups []GroupData `json:"groups"`
+}
+
+func LoadSeedData(db *sql.DB, seedDir string) error <span class="cov0" title="0">{
+        // Load and insert words
+        wordsFile := filepath.Join(seedDir, "words.json")
+        words, err := loadWordsFromJSON(wordsFile)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to load words: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">wordIDs, err := insertWords(db, words)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to insert words: %w", err)
+        }</span>
+
+        // Load and insert groups
+        <span class="cov0" title="0">groupsFile := filepath.Join(seedDir, "groups.json")
+        groups, err := loadGroupsFromJSON(groupsFile)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to load groups: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">if err := insertGroups(db, groups, words, wordIDs); err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to insert groups: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">return nil</span>
+}
+
+func loadWordsFromJSON(filename string) ([]WordData, error) <span class="cov0" title="0">{
+        data, err := os.ReadFile(filename)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov0" title="0">var wordsFile WordsFile
+        if err := json.Unmarshal(data, &amp;wordsFile); err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov0" title="0">return wordsFile.Words, nil</span>
+}
+
+func loadGroupsFromJSON(filename string) ([]GroupData, error) <span class="cov0" title="0">{
+        data, err := os.ReadFile(filename)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov0" title="0">var groupsFile GroupsFile
+        if err := json.Unmarshal(data, &amp;groupsFile); err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov0" title="0">return groupsFile.Groups, nil</span>
+}
+
+func insertWords(db *sql.DB, words []WordData) (map[string]int64, error) <span class="cov0" title="0">{
+        wordIDs := make(map[string]int64)
+        
+        for _, word := range words </span><span class="cov0" title="0">{
+                partsJSON, err := json.Marshal(word.Parts)
+                if err != nil </span><span class="cov0" title="0">{
+                        return nil, err
+                }</span>
+
+                <span class="cov0" title="0">result, err := db.Exec(
+                        "INSERT INTO words (german, english, parts) VALUES (?, ?, ?)",
+                        word.German,
+                        word.English,
+                        string(partsJSON),
+                )
+                if err != nil </span><span class="cov0" title="0">{
+                        return nil, err
+                }</span>
+
+                <span class="cov0" title="0">id, err := result.LastInsertId()
+                if err != nil </span><span class="cov0" title="0">{
+                        return nil, err
+                }</span>
+
+                <span class="cov0" title="0">wordIDs[word.German] = id</span>
+        }
+
+        <span class="cov0" title="0">return wordIDs, nil</span>
+}
+
+func insertGroups(db *sql.DB, groups []GroupData, words []WordData, wordIDs map[string]int64) error <span class="cov0" title="0">{
+        for _, group := range groups </span><span class="cov0" title="0">{
+                // Insert group
+                result, err := db.Exec("INSERT INTO groups (name) VALUES (?)", group.Name)
+                if err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+
+                <span class="cov0" title="0">groupID, err := result.LastInsertId()
+                if err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+
+                // Insert word-group relationships
+                <span class="cov0" title="0">for _, wordGerman := range group.Words </span><span class="cov0" title="0">{
+                        wordID, ok := wordIDs[wordGerman]
+                        if !ok </span><span class="cov0" title="0">{
+                                return fmt.Errorf("word %q not found in words list", wordGerman)
+                        }</span>
+
+                        <span class="cov0" title="0">_, err = db.Exec(
+                                "INSERT INTO words_groups (word_id, group_id) VALUES (?, ?)",
+                                wordID,
+                                groupID,
+                        )
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+                }
+        }
+
+        <span class="cov0" title="0">return nil</span>
+}
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>

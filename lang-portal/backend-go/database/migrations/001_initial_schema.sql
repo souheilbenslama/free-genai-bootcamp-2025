@@ -9,7 +9,10 @@ CREATE TABLE IF NOT EXISTS words (
 -- Create groups table
 CREATE TABLE IF NOT EXISTS groups (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL
+    name TEXT NOT NULL,
+    description TEXT,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Create words_groups table (many-to-many relationship)
@@ -26,7 +29,7 @@ CREATE TABLE IF NOT EXISTS study_sessions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     group_id INTEGER NOT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    study_activity_id INTEGER NOT NULL,
+    study_activity_id INTEGER,
     FOREIGN KEY (group_id) REFERENCES groups(id)
 );
 
