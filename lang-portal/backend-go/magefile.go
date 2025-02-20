@@ -85,10 +85,10 @@ func Build() error {
 	return sh.Run("go", "build", "-o", "lang-portal", "./cmd/api")
 }
 
-// Test runs the test suite
+// Test runs the test suite with verbose output
 func Test() error {
 	fmt.Println("Running tests...")
-	return sh.Run("go", "test", "./...")
+	return sh.RunV("go", "test", "./...", "-v")
 }
 
 // Clean removes build artifacts
