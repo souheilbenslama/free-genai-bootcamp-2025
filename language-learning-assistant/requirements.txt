@@ -1,0 +1,5 @@
+chromadb
+streamlit
+boto3
+mistralai
+dotenv
